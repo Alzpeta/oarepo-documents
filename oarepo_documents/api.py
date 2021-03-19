@@ -11,18 +11,36 @@ import uuid
 
 import requests
 from crossref.restful import Works
-from flask import current_app, Response, request
+from flask import Response
 from invenio_base.utils import obj_or_import_string
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_pidstore import current_pidstore
-from invenio_pidstore.errors import PersistentIdentifierError, PIDDoesNotExistError
+from invenio_pidstore.errors import PIDDoesNotExistError
 from invenio_pidstore.models import PersistentIdentifier, PIDStatus
 from oarepo_actions.decorators import action
 
 from .document_json_mapping import schema_mapping
 from .minter import document_minter
 
+
+def create_document(record_class, data, doi):
+    record_uuid = uuid.uuid4()
+    minter = record_class.DOCUMENT_MINTER
+    if hasattr(minter, '_get_current_object'):
+        minter = minter._get_current_object()
+    if isinstance(minter, str):
+        minter = obj_or_import_string(current_pidstore.minters[minter])
+    minter(record_uuid, data)
+    record = record_class.create(data=data, id_=record_uuid)
+    indexer = record_class.DOCUMENT_INDEXER()
+    indexer.index(record)
+    PersistentIdentifier.create(record_class.DOI_PID_TYPE, doi, object_type='rec',
+                                object_uuid=record_uuid,
+                                status=PIDStatus.REGISTERED)
+
+    db.session.commit()
+    return Response(status=302, headers={"Location": record.canonical_url})
 
 class DocumentRecordMixin:
     """Class for document record."""
@@ -43,23 +61,9 @@ class DocumentRecordMixin:
 
         existing_document = getMetadataFromDOI(doi)
 
-        record_uuid = uuid.uuid4()
         data = schema_mapping(existing_document, doi)
-        minter = cls.DOCUMENT_MINTER
-        if hasattr(minter, '_get_current_object'):
-            minter = minter._get_current_object()
-        if isinstance(minter, str):
-            minter = obj_or_import_string(current_pidstore.minters[minter])
-        minter(record_uuid, data)
-        record = cls.create(data=data, id_=record_uuid)
-        indexer = cls.DOCUMENT_INDEXER()
-        indexer.index(record)
-        PersistentIdentifier.create(cls.DOI_PID_TYPE, doi, object_type='rec',
-                                    object_uuid=record_uuid,
-                                    status=PIDStatus.REGISTERED)
 
-        db.session.commit()
-        return Response(status=302, headers={"Location": record.canonical_url})
+        return create_document(cls, data, doi)
 
 class CrossRefClient(object):
     """Class for CrossRefClient."""
