@@ -11,17 +11,18 @@ import uuid
 
 import requests
 from crossref.restful import Works
-from flask import current_app, Response, request
+from flask import Response
 from invenio_base.utils import obj_or_import_string
 from invenio_db import db
 from invenio_indexer.api import RecordIndexer
 from invenio_pidstore import current_pidstore
-from invenio_pidstore.errors import PersistentIdentifierError, PIDDoesNotExistError
+from invenio_pidstore.errors import PIDDoesNotExistError
 from invenio_pidstore.models import PersistentIdentifier, PIDStatus
 from oarepo_actions.decorators import action
 
 from .document_json_mapping import schema_mapping
 from .minter import document_minter
+
 
 def create_document(record_class, data, doi):
     record_uuid = uuid.uuid4()
