@@ -34,6 +34,7 @@ tests_require = [
     'crossrefapi',
     'deepmerge',
     'langdetect',
+    'click==7.1.2'
 ]
 
 extras_require = {
