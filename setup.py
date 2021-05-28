@@ -17,7 +17,7 @@ install_requires = [
     'oarepo-mapping-includes',
     'marshmallow',
     # 'oarepo-multilingual',
-    'flask',
+    'flask==1.1.4',
     'crossrefapi',
     'deepmerge',
     'langdetect'
