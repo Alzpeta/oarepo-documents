@@ -10,3 +10,7 @@ under the terms of the MIT License; see LICENSE file for more details.
 ## Version 1.0.0 
 
 - Initial public release.
+
+## Version 1.1.1
+
+- Metadata field "Identifiers" now has all properties set as optional and new property "status" was added (for DOI request purposes).

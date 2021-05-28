@@ -28,8 +28,9 @@ class IdentifierSchema(Schema):
         unknown = EXCLUDE
 
     material = fields.Str()
-    scheme = fields.Str(required=True)
-    value = fields.Str(required=True)
+    scheme = fields.Str()
+    value = fields.Str()
+    status = fields.Str()
 
 
 class AffiliationSchema(Schema):

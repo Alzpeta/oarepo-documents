@@ -375,6 +375,9 @@ def test_mapping(app):
                                 },
                                 "value": {
                                     "type": "keyword"
+                                },
+                                "status": {
+                                    "type": "keyword"
                                 }
                             },
                             "type": "object"
