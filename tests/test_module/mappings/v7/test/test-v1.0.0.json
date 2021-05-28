@@ -278,6 +278,9 @@
           },
           "value": {
             "type": "keyword"
+          },
+          "status": {
+            "type": "keyword"
           }
         },
         "type": "object"
